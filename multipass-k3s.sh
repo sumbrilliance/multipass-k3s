@@ -68,7 +68,7 @@ read -r -d '' SERVER_INIT_CLOUDINIT_TEMPLATE << EOM
 #cloud-config
 
 runcmd:
- - '\curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=$CHANNEL K3S_TOKEN=$SERVER_TOKEN K3S_AGENT_TOKEN=$AGENT_TOKEN INSTALL_K3S_EXEC="server --cluster-init" K3S_KUBECONFIG_MODE=644 sh -'
+ - '\curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | INSTALL_K3S_MIRROR=cn INSTALL_K3S_CHANNEL=$CHANNEL K3S_TOKEN=$SERVER_TOKEN K3S_AGENT_TOKEN=$AGENT_TOKEN INSTALL_K3S_EXEC="server --cluster-init" K3S_KUBECONFIG_MODE=644 sh -'
 EOM
 
 echo "$SERVER_INIT_CLOUDINIT_TEMPLATE" > "${NAME}-init-cloud-init.yaml"
@@ -76,8 +76,8 @@ echo "Cloud-init is created at ${NAME}-init-cloud-init.yaml"
 
 echo "Creating initial server instance: k3s-server-${NAME}"
 
-echo "Running $MULTIPASSCMD launch --cpus $SERVER_CPU_MACHINE --disk $SERVER_DISK_MACHINE --mem $SERVER_MEMORY_MACHINE $IMAGE --name k3s-server-$NAME --cloud-init ${NAME}-init-cloud-init.yaml"
-$MULTIPASSCMD launch --cpus $SERVER_CPU_MACHINE --disk $SERVER_DISK_MACHINE --mem $SERVER_MEMORY_MACHINE $IMAGE --name k3s-server-$NAME --cloud-init "${NAME}-init-cloud-init.yaml"
+echo "Running $MULTIPASSCMD launch --cpus $SERVER_CPU_MACHINE --disk $SERVER_DISK_MACHINE --memory $SERVER_MEMORY_MACHINE $IMAGE --name k3s-server-$NAME --cloud-init ${NAME}-init-cloud-init.yaml"
+$MULTIPASSCMD launch --cpus $SERVER_CPU_MACHINE --disk $SERVER_DISK_MACHINE --memory $SERVER_MEMORY_MACHINE $IMAGE --name k3s-server-$NAME --cloud-init "${NAME}-init-cloud-init.yaml"
 if [ $? -ne 0 ]; then
     echo "There was an error launching the instance"
     exit 1
@@ -97,15 +97,15 @@ if [ "${SERVER_COUNT_MACHINE}" -gt 0 ]; then
 #cloud-config
 
 runcmd:
- - '\curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=$CHANNEL K3S_TOKEN=$SERVER_TOKEN K3S_AGENT_TOKEN=$AGENT_TOKEN INSTALL_K3S_EXEC="server --server $URL" K3S_KUBECONFIG_MODE=644 sh -'
+ - '\curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | INSTALL_K3S_MIRROR=cn INSTALL_K3S_CHANNEL=$CHANNEL K3S_TOKEN=$SERVER_TOKEN K3S_AGENT_TOKEN=$AGENT_TOKEN INSTALL_K3S_EXEC="server --server $URL" K3S_KUBECONFIG_MODE=644 sh -'
 EOM
 
     echo "$SERVER_CLOUDINIT_TEMPLATE" > "${NAME}-cloud-init.yaml"
 
     echo "Creating ${SERVER_COUNT_MACHINE} additional server instances"
     for i in $(eval echo "{1..$SERVER_COUNT_MACHINE}"); do
-        echo "Running $MULTIPASSCMD launch --cpus $SERVER_CPU_MACHINE --disk $SERVER_DISK_MACHINE --mem $SERVER_MEMORY_MACHINE $IMAGE --name k3s-server-$NAME-$i --cloud-init ${NAME}-cloud-init.yaml"
-        $MULTIPASSCMD launch --cpus $SERVER_CPU_MACHINE --disk $SERVER_DISK_MACHINE --mem $SERVER_MEMORY_MACHINE $IMAGE --name k3s-server-$NAME-$i --cloud-init "${NAME}-cloud-init.yaml"
+        echo "Running $MULTIPASSCMD launch --cpus $SERVER_CPU_MACHINE --disk $SERVER_DISK_MACHINE --memory $SERVER_MEMORY_MACHINE $IMAGE --name k3s-server-$NAME-$i --cloud-init ${NAME}-cloud-init.yaml"
+        $MULTIPASSCMD launch --cpus $SERVER_CPU_MACHINE --disk $SERVER_DISK_MACHINE --memory $SERVER_MEMORY_MACHINE $IMAGE --name k3s-server-$NAME-$i --cloud-init "${NAME}-cloud-init.yaml"
         if [ $? -ne 0 ]; then
             echo "There was an error launching the instance"
             exit 1
@@ -124,15 +124,15 @@ if [ "${AGENT_COUNT_MACHINE}" -gt 0 ]; then
 #cloud-config
 
 runcmd:
- - '\curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=$CHANNEL K3S_TOKEN=$AGENT_TOKEN K3S_URL=$URL sh -'
+ - '\curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | INSTALL_K3S_MIRROR=cn INSTALL_K3S_CHANNEL=$CHANNEL K3S_TOKEN=$AGENT_TOKEN K3S_URL=$URL sh -'
 EOM
 
     echo "$AGENT_CLOUDINIT_TEMPLATE" > "${NAME}-agent-cloud-init.yaml"
     echo "Cloud-init is created at ${NAME}-agent-cloud-init.yaml"
 
     for i in $(eval echo "{1..$AGENT_COUNT_MACHINE}"); do
-        echo "Running $MULTIPASSCMD launch --cpus $AGENT_CPU_MACHINE --disk $AGENT_DISK_MACHINE --mem $AGENT_MEMORY_MACHINE $IMAGE --name k3s-agent-$NAME-$i --cloud-init ${NAME}-agent-cloud-init.yaml"
-        $MULTIPASSCMD launch --cpus $AGENT_CPU_MACHINE --disk $AGENT_DISK_MACHINE --mem $AGENT_MEMORY_MACHINE $IMAGE --name k3s-agent-$NAME-$i --cloud-init "${NAME}-agent-cloud-init.yaml"
+        echo "Running $MULTIPASSCMD launch --cpus $AGENT_CPU_MACHINE --disk $AGENT_DISK_MACHINE --memory $AGENT_MEMORY_MACHINE $IMAGE --name k3s-agent-$NAME-$i --cloud-init ${NAME}-agent-cloud-init.yaml"
+        $MULTIPASSCMD launch --cpus $AGENT_CPU_MACHINE --disk $AGENT_DISK_MACHINE --memory $AGENT_MEMORY_MACHINE $IMAGE --name k3s-agent-$NAME-$i --cloud-init "${NAME}-agent-cloud-init.yaml"
         if [ $? -ne 0 ]; then
             echo "There was an error launching the instance"
             exit 1
